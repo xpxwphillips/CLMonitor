@@ -167,9 +167,13 @@ namespace CLMonitor
                 Program.QuerySingle(new Uri(txtNewURL.Text.Trim()));
                 ReadFromFile(Program.urlFile + "_Data.CSV");
                 LoadGroups();
+            }
+            else
+            {
+                MessageBox.Show("Listing already monitored!");
+            }
                 txtNewURL.Text = "";
                 txtNewTag.Text = "";
-            }
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
@@ -193,5 +197,26 @@ namespace CLMonitor
             ReadFromFile(Program.urlFile + "_Data.CSV");
             LoadGroups();
         }
+
+        private void txtNewURL_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtNewURL_GotFocus(Object sender, EventArgs e)
+        {
+            AcceptButton = btnAddNew;
+        }
+
+        private void txtNewTag_GotFocus(Object sender, EventArgs e)
+        {
+            AcceptButton = btnAddNew;
+        }
+
+        private void txtTag__GotFocus(Object sender, EventArgs e)
+        {
+            AcceptButton = btnSave;
+        }
+
     }
 }

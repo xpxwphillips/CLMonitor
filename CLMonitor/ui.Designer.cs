@@ -110,14 +110,15 @@
             this.txtNewURL.Location = new System.Drawing.Point(12, 22);
             this.txtNewURL.Name = "txtNewURL";
             this.txtNewURL.Size = new System.Drawing.Size(814, 20);
-            this.txtNewURL.TabIndex = 6;
+            this.txtNewURL.TabIndex = 0;
+            this.txtNewURL.TextChanged += new System.EventHandler(this.txtNewURL_TextChanged);
             // 
             // btnAddNew
             // 
             this.btnAddNew.Location = new System.Drawing.Point(832, 20);
             this.btnAddNew.Name = "btnAddNew";
             this.btnAddNew.Size = new System.Drawing.Size(108, 23);
-            this.btnAddNew.TabIndex = 7;
+            this.btnAddNew.TabIndex = 2;
             this.btnAddNew.Text = "Add New";
             this.btnAddNew.UseVisualStyleBackColor = true;
             this.btnAddNew.Click += new System.EventHandler(this.btnAddNew_Click);
@@ -157,7 +158,7 @@
             this.txtTag.Location = new System.Drawing.Point(383, 147);
             this.txtTag.Name = "txtTag";
             this.txtTag.Size = new System.Drawing.Size(372, 20);
-            this.txtTag.TabIndex = 11;
+            this.txtTag.TabIndex = 3;
             // 
             // label1
             // 
@@ -173,7 +174,7 @@
             this.btnSave.Location = new System.Drawing.Point(761, 145);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
-            this.btnSave.TabIndex = 13;
+            this.btnSave.TabIndex = 4;
             this.btnSave.Text = "Save Tag";
             this.btnSave.UseVisualStyleBackColor = true;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
@@ -183,7 +184,7 @@
             this.txtNewTag.Location = new System.Drawing.Point(48, 48);
             this.txtNewTag.Name = "txtNewTag";
             this.txtNewTag.Size = new System.Drawing.Size(451, 20);
-            this.txtNewTag.TabIndex = 14;
+            this.txtNewTag.TabIndex = 1;
             // 
             // label2
             // 
