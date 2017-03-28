@@ -10,7 +10,7 @@ namespace CLMonitor
 {
     class Program
     {
-        public static Dictionary<string,string> urls;
+        public static Dictionary<string, string> urls;
         public static string urlFile;
 
         [STAThread]
@@ -61,7 +61,7 @@ namespace CLMonitor
                     ui.LoadGroups();
                     ui.ShowDialog();
                 }
-                if ((args.Count() > 0 && Uri.IsWellFormedUriString(args[1],UriKind.Absolute)))
+                if ((args.Count() > 0 && Uri.IsWellFormedUriString(args[1], UriKind.Absolute)))
                 {
                     //URL specified, add it to the list and query it...
                     System.IO.File.AppendAllLines(Program.urlFile, new string[] { args[1] });
@@ -90,21 +90,25 @@ namespace CLMonitor
                 listing.SaveImages(urlFile + "_Images\\" + listing.Uri.Segments.Last() + "\\");
             });
             System.IO.File.AppendAllLines(urlFile + "_Data.CSV", Listings.Select(l => l.ToCSVLine()));
-            
+
         }
 
         public static void QueryAll()
         {
+            try
+            {
                 List<Listing> Listings = new List<Listing>();
                 Parallel.ForEach(urls, url =>
                     {
                         Listings.Add(GetListing(new Uri(url.Key)));
                     });
-                Parallel.ForEach(Listings, listing =>
+                Parallel.ForEach(Listings.Where(l => l.Title != "[NO TITLE!]"), listing =>
                 {
                     listing.SaveImages(urlFile + "_Images\\" + listing.Uri.Segments.Last() + "\\");
                 });
-                System.IO.File.AppendAllLines(urlFile + "_Data.CSV",Listings.Select(l => l.ToCSVLine()));
+                System.IO.File.AppendAllLines(urlFile + "_Data.CSV", Listings.Select(l => l.ToCSVLine()));
+            }
+            catch (Exception e) { Console.WriteLine(e.Message + e.StackTrace); }
         }
 
         public static HtmlAgilityPack.HtmlDocument GetPage(Uri uri)
@@ -130,7 +134,7 @@ namespace CLMonitor
             {
                 return new Listing(uri, GetPage(uri));
             }
-            catch(Exception)
+            catch (Exception)
             { }
             return null;
         }
@@ -148,7 +152,7 @@ namespace CLMonitor
 
             public bool SaveImages(string path)
             {
-                if(Images != null)
+                if (Images != null)
                     Parallel.ForEach(Images, image =>
                     {
                         try
@@ -159,8 +163,8 @@ namespace CLMonitor
                                 client.DownloadFile(image, path + image.Segments.Last());
                             }
                         }
-                        catch(Exception)
-                        {}
+                        catch (Exception e)
+                        { Console.WriteLine(e.Message + e.StackTrace); }
                     });
                 return true;
             }
@@ -195,8 +199,13 @@ namespace CLMonitor
             {
                 get
                 {
-                    if(_doc.DocumentNode.SelectNodes("//div[@id='thumbs']/a") != null)
-                        return _doc.DocumentNode.SelectNodes("//div[@id='thumbs']/a").Select(l => new Uri(l.GetAttributeValue("href", "")));
+                    try
+                    {
+                        if (_doc.DocumentNode.SelectNodes("//div[@id='thumbs']/a") != null)
+                            return _doc.DocumentNode.SelectNodes("//div[@id='thumbs']/a").Select(l => new Uri(l.GetAttributeValue("href", "")));
+
+                    }
+                    catch (Exception e) { Console.WriteLine(e.Message + e.StackTrace); }
                     return new List<Uri>();
                 }
             }
@@ -205,8 +214,13 @@ namespace CLMonitor
             {
                 get
                 {
-                    if(_doc.DocumentNode.SelectSingleNode("//*[@id='display-date']/time") != null)
-                        return DateTime.Parse(_doc.DocumentNode.SelectSingleNode("//*[@id='display-date']/time").GetAttributeValue("datetime", "2000-01-01T00:00:00-0000").Trim());
+                    try
+                    {
+                        if (_doc.DocumentNode.SelectSingleNode("//*[@id='display-date']/time") != null)
+                            return DateTime.Parse(_doc.DocumentNode.SelectSingleNode("//*[@id='display-date']/time").GetAttributeValue("datetime", "2000-01-01T00:00:00-0000").Trim());
+                    }
+                    catch (Exception e) { Console.WriteLine(e.Message + e.StackTrace); }
+
                     return new DateTime();
                 }
             }
@@ -215,8 +229,13 @@ namespace CLMonitor
             {
                 get
                 {
-                    if(_doc.DocumentNode.SelectSingleNode("html/body/section/section/section/div[2]/p[2]/time") != null)
-                        return DateTime.Parse(_doc.DocumentNode.SelectSingleNode("html/body/section/section/section/div[2]/p[2]/time").GetAttributeValue("datetime", "2000-01-01T00:00:00-0000").Trim());
+                    try
+                    {
+                        if (_doc.DocumentNode.SelectSingleNode("html/body/section/section/section/div[2]/p[2]/time") != null)
+                            return DateTime.Parse(_doc.DocumentNode.SelectSingleNode("html/body/section/section/section/div[2]/p[2]/time").GetAttributeValue("datetime", "2000-01-01T00:00:00-0000").Trim());
+                    }
+                    catch (Exception e) { Console.WriteLine(e.Message + e.StackTrace); }
+
                     return DateTime.Now;
                 }
             }
@@ -225,8 +244,12 @@ namespace CLMonitor
             {
                 get
                 {
-                    if(_doc.DocumentNode.SelectSingleNode("//*[@id='titletextonly']") != null)
-                        return _doc.DocumentNode.SelectSingleNode("//*[@id='titletextonly']").InnerText.Trim();
+                    try
+                    {
+                        if (_doc.DocumentNode.SelectSingleNode("//*[@id='titletextonly']") != null)
+                            return _doc.DocumentNode.SelectSingleNode("//*[@id='titletextonly']").InnerText.Trim();
+                    }
+                    catch (Exception e) { Console.WriteLine(e.Message + e.StackTrace); }
                     return "[NO TITLE!]";
                 }
             }
@@ -235,7 +258,12 @@ namespace CLMonitor
             {
                 get
                 {
-                    return _doc.DocumentNode.SelectSingleNode("//li[@class='crumb category']").InnerText.Trim();
+                    try
+                    {
+                        return _doc.DocumentNode.SelectSingleNode("//li[@class='crumb category']").InnerText.Trim();
+                    }
+                    catch (Exception e) { Console.WriteLine(e.Message + e.StackTrace); }
+                    return "";
                 }
             }
 
@@ -243,8 +271,13 @@ namespace CLMonitor
             {
                 get
                 {
-                    if(_doc.DocumentNode.SelectSingleNode("//span[@class='postingtitletext']/span[@class='price']") != null)
-                        return decimal.Parse(_doc.DocumentNode.SelectSingleNode("//span[@class='postingtitletext']/span[@class='price']").InnerText.Trim(),System.Globalization.NumberStyles.Currency);
+                    try
+                    {
+                        if (_doc.DocumentNode.SelectSingleNode("//span[@class='postingtitletext']/span[@class='price']") != null)
+                            return decimal.Parse(_doc.DocumentNode.SelectSingleNode("//span[@class='postingtitletext']/span[@class='price']").InnerText.Trim(), System.Globalization.NumberStyles.Currency);
+                    }
+                    catch (Exception e) { Console.WriteLine(e.Message + e.StackTrace); }
+
                     return -1;
                 }
             }
@@ -253,8 +286,12 @@ namespace CLMonitor
             {
                 get
                 {
-                    if(_doc.DocumentNode.SelectSingleNode("//span[@class='postingtitletext']/small") != null)
-                        return _doc.DocumentNode.SelectSingleNode("//span[@class='postingtitletext']/small").InnerText.Trim();
+                    try
+                    {
+                        if (_doc.DocumentNode.SelectSingleNode("//span[@class='postingtitletext']/small") != null)
+                            return _doc.DocumentNode.SelectSingleNode("//span[@class='postingtitletext']/small").InnerText.Trim();
+                    }
+                    catch (Exception e) { Console.WriteLine(e.Message + e.StackTrace); }
                     return "";
                 }
             }
@@ -263,10 +300,14 @@ namespace CLMonitor
             {
                 get
                 {
-                    if (_doc.DocumentNode.SelectSingleNode("//div[@class='removed']") != null)
-                        return _doc.DocumentNode.SelectSingleNode("//div[@class='removed']").InnerText.Trim();
-                    if (_doc.DocumentNode.SelectSingleNode(".//*[@id='postingbody']") != null)
-                        return _doc.DocumentNode.SelectSingleNode(".//*[@id='postingbody']").InnerText.Trim();
+                    try
+                    {
+                        if (_doc.DocumentNode.SelectSingleNode("//div[@class='removed']") != null)
+                            return _doc.DocumentNode.SelectSingleNode("//div[@class='removed']").InnerText.Trim();
+                        if (_doc.DocumentNode.SelectSingleNode(".//*[@id='postingbody']") != null)
+                            return _doc.DocumentNode.SelectSingleNode(".//*[@id='postingbody']").InnerText.Trim();
+                    }
+                    catch (Exception e) { Console.WriteLine(e.Message + e.StackTrace); }
                     return "";
                 }
             }
